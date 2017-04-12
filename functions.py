@@ -1,4 +1,15 @@
 import h5py
+import numpy as np
+
+def get_sd_from_pulse(d, width):
+    """ Get minimum and maximum value of standard deviation 
+
+    d - 1-d array
+    width - width of sd calculation
+    step - starting point of next window 
+    """
+    sd = np.std(rolling_window(d, width), axis=1)
+    return np.array([np.min(sd), np.max(sd)])
 
 def get_mean_profile(d):
     """ Get mean profile from all pulses
@@ -14,3 +25,8 @@ def read_data(f):
     """
     return h5py.File(f.as_posix())['data'][:]
     
+def rolling_window(a, window):
+    """ http://www.rigtorp.se/2011/01/01/rolling-statistics-numpy.html """
+    shape = a.shape[:-1] + (a.shape[-1] - window + 1, window)
+    strides = a.strides + (a.strides[-1],)
+    return np.lib.stride_tricks.as_strided(a, shape=shape, strides=strides)

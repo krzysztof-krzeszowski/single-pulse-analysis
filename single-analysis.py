@@ -7,7 +7,6 @@ from pathlib import Path
 
 CONFIG = {
     'WINDOW_SIZE': 500,
-    'WINDOW_STEP': 100,
 }
 
 if len(sys.argv) != 2:
