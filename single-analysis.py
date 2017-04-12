@@ -21,6 +21,5 @@ if not f.is_file():
 
 d = fn.read_data(f)
 
-for f in fn.get_mean_profile(d):
-    print(f)
-
+sd = fn.get_sd_from_pulses(d[:10], width=CONFIG['WINDOW_SIZE'])
+print(sd)
