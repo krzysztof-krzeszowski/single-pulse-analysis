@@ -32,7 +32,7 @@ class Test(unittest.TestCase):
             [1.3333, -0.6667, -0.6667,  2.3333,  3.3333, -1.6667,  1.3333,  1.3333,  3.3333,  4.3333],
             [5.,  2., -2., -3., -4., -1.,  5.,  5., -2.,  4.]
         ])
-        np.testing.assert_array_almost_equal(fn.subtract_baseline(d, position=positions, width=3), ans, decimal=4)
+        np.testing.assert_array_almost_equal(fn.subtract_baselines(d, position=positions, width=3), ans, decimal=4)
         
     def test_subtract_baseline_single(self):
         d = np.array([4, 2, 5, 8, 4, 1, 2, 7, 9, 0, 7, 5, 2, 3, 7, 9, 2])
