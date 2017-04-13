@@ -1,6 +1,21 @@
 import h5py
 import numpy as np
 
+def get_baseline_single(d, position, width):
+    """ Get baseline level from single pulse """
+    return np.mean(d[position:position + width])
+
+def get_baselines(d, position, width):
+    """ Get baselines from all pulses """
+    return np.apply_along_axis(get_baseline_single, 1, d, position=position, width=width)
+
+def get_mean_profile(d):
+    """ Get mean profile from all pulses
+
+    d - ndarray with single pulse data
+    """
+    return d.mean(axis=0)
+
 def get_sd_from_pulse(d, width, step):
     """ Get minimum and maximum value of standard deviation from single pulse
 
@@ -18,13 +33,6 @@ def get_sd_from_pulses(d, width, step):
     """
     return np.array([get_sd_from_pulse(r, width, step) for r in d])
 
-def get_mean_profile(d):
-    """ Get mean profile from all pulses
-
-    d - ndarray with single pulse data
-    """
-    return d.mean(axis=0)
-
 def read_data(f):
     """ Get ndarray with single pulses
 
@@ -37,7 +45,9 @@ def rolling_window(a, width, step):
     return np.array([a[i:i + width] for i in range(0, len(a) - width, step)])
 
 def subtract_baseline(d, position, width):
+    """ Subtract baseline from 2-d array of single pulses """
     return np.apply_along_axis(subtract_baseline_single, 1, d, position=position, width=width)
 
 def subtract_baseline_single(d, position, width):
+    """ Subtract baseline from single pulse """
     return d - np.mean(d[position:position + width])

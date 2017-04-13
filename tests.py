@@ -6,7 +6,20 @@ import unittest
 
 
 class Test(unittest.TestCase):
-    def test_baseline_multiple(self):
+    def test_get_baseline_single(self):
+        d = np.array([4, 2, 5, 8, 4, 1, 2, 7, 9, 0, 7, 5, 2, 3, 7, 9, 2])
+        np.testing.assert_almost_equal(fn.get_baseline_single(d, position=4, width=5), 4.6, decimal=4)
+
+    def test_get_baseline_multiple(self):
+        d = np.array([
+            [9, 4, 7, 7, 4, 4, 4, 6, 0, 5],
+            [6, 4, 4, 7, 8, 3, 6, 6, 8, 9],
+            [9, 6, 2, 1, 0, 3, 9, 9, 2, 8]
+        ])
+        ans = np.array([6, 6.3333, 1])
+        np.testing.assert_array_almost_equal(fn.get_baselines(d, position=2, width=3), ans, decimal=4)
+        
+    def test_subtract_baseline_multiple(self):
         d = np.array([
             [9, 4, 7, 7, 4, 4, 4, 6, 0, 5],
             [6, 4, 4, 7, 8, 3, 6, 6, 8, 9],
@@ -19,7 +32,7 @@ class Test(unittest.TestCase):
         ])
         np.testing.assert_array_almost_equal(fn.subtract_baseline(d, position=2, width=3), ans, decimal=4)
         
-    def test_baseline_single(self):
+    def test_subtract_baseline_single(self):
         d = np.array([4, 2, 5, 8, 4, 1, 2, 7, 9, 0, 7, 5, 2, 3, 7, 9, 2])
         ans = np.array([-0.6, -2.6,  0.4,  3.4, -0.6, -3.6, -2.6,  2.4,  4.4, -4.6,  2.4,
         0.4, -2.6, -1.6,  2.4,  4.4, -2.6])
