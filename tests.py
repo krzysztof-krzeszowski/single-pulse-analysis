@@ -19,7 +19,7 @@ class Test(unittest.TestCase):
         positions = np.array([2, 5, 1])
         ans = np.array([6, 5, 3])
         np.testing.assert_array_almost_equal(fn.get_baselines(d, position=positions, width=3), ans, decimal=4)
-        
+
     def test_subtract_baseline_multiple(self):
         d = np.array([
             [9, 4, 7, 7, 4, 4, 4, 6, 0, 5],
