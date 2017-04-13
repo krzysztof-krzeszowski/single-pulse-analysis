@@ -48,7 +48,6 @@ def rolling_window(a, width, step):
 
 def subtract_baseline(d, position, width):
     """ Subtract baseline from 2-d array of single pulses """
-    #return np.apply_along_axis(subtract_baseline_single, 1, d, position=position, width=width)
     return np.array(list(map(subtract_baseline_single, d, position, np.array(len(position) * [width]))))
 
 def subtract_baseline_single(d, position, width):
