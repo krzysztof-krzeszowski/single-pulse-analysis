@@ -36,5 +36,8 @@ def rolling_window(a, width, step):
     """ Returns 2-d array with slices of of `a` of `width` separated by `step`"""
     return np.array([a[i:i + width] for i in range(0, len(a) - width, step)])
 
+def subtract_baseline(d, position, width):
+    return np.apply_along_axis(subtract_baseline_single, 1, d, position=position, width=width)
+
 def subtract_baseline_single(d, position, width):
     return d - np.mean(d[position:position + width])

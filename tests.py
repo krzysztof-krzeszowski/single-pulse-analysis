@@ -6,6 +6,19 @@ import unittest
 
 
 class Test(unittest.TestCase):
+    def test_baseline_multiple(self):
+        d = np.array([
+            [9, 4, 7, 7, 4, 4, 4, 6, 0, 5],
+            [6, 4, 4, 7, 8, 3, 6, 6, 8, 9],
+            [9, 6, 2, 1, 0, 3, 9, 9, 2, 8]
+        ])
+        ans = np.array([
+            [ 3., -2.,  1.,  1., -2., -2., -2.,  0., -6., -1.],
+            [-0.3333, -2.3333, -2.3333,  0.6667,  1.6667, -3.3333, -0.3333, -0.3333,  1.6667,  2.6667],
+            [ 8.,  5.,  1.,  0., -1.,  2.,  8.,  8.,  1.,  7.]
+        ])
+        np.testing.assert_array_almost_equal(fn.subtract_baseline(d, position=2, width=3), ans, decimal=4)
+        
     def test_baseline_single(self):
         d = np.array([4, 2, 5, 8, 4, 1, 2, 7, 9, 0, 7, 5, 2, 3, 7, 9, 2])
         ans = np.array([-0.6, -2.6,  0.4,  3.4, -0.6, -3.6, -2.6,  2.4,  4.4, -4.6,  2.4,
