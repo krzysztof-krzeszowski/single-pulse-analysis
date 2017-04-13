@@ -26,12 +26,13 @@ class Test(unittest.TestCase):
             [6, 4, 4, 7, 8, 3, 6, 6, 8, 9],
             [9, 6, 2, 1, 0, 3, 9, 9, 2, 8]
         ])
+        positions = np.array([2, 0, 4])
         ans = np.array([
-            [ 3., -2.,  1.,  1., -2., -2., -2.,  0., -6., -1.],
-            [-0.3333, -2.3333, -2.3333,  0.6667,  1.6667, -3.3333, -0.3333, -0.3333,  1.6667,  2.6667],
-            [ 8.,  5.,  1.,  0., -1.,  2.,  8.,  8.,  1.,  7.]
+            [3., -2.,  1.,  1., -2., -2., -2.,  0., -6., -1.],
+            [1.3333, -0.6667, -0.6667,  2.3333,  3.3333, -1.6667,  1.3333,  1.3333,  3.3333,  4.3333],
+            [5.,  2., -2., -3., -4., -1.,  5.,  5., -2.,  4.]
         ])
-        np.testing.assert_array_almost_equal(fn.subtract_baseline(d, position=2, width=3), ans, decimal=4)
+        np.testing.assert_array_almost_equal(fn.subtract_baseline(d, position=positions, width=3), ans, decimal=4)
         
     def test_subtract_baseline_single(self):
         d = np.array([4, 2, 5, 8, 4, 1, 2, 7, 9, 0, 7, 5, 2, 3, 7, 9, 2])
