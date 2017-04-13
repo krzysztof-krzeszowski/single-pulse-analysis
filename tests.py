@@ -6,6 +6,12 @@ import unittest
 
 
 class Test(unittest.TestCase):
+    def test_baseline_single(self):
+        d = np.array([4, 2, 5, 8, 4, 1, 2, 7, 9, 0, 7, 5, 2, 3, 7, 9, 2])
+        ans = np.array([-0.6, -2.6,  0.4,  3.4, -0.6, -3.6, -2.6,  2.4,  4.4, -4.6,  2.4,
+        0.4, -2.6, -1.6,  2.4,  4.4, -2.6])
+        np.testing.assert_array_almost_equal(fn.subtract_baseline_single(d, position=4, width=5), ans)
+    
     def test_mean_profile(self):
         d = np.array([[1, 2, 3, 4, 5], [3, 4, 5, 6, 7], [5, 6, 7, 8, 9]])
         np.testing.assert_array_equal(fn.get_mean_profile(d), np.array([3, 4, 5, 6, 7]))
