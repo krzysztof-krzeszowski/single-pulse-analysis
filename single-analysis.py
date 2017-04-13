@@ -22,17 +22,27 @@ def plot_baselines(b):
     plt.savefig(FILE_PREFIX + '_plot_baseline.png')
     plt.close()
 
+def plot_mean_profile(d):
+    """ Plots mean profile """
+    plt.plot(d, label='Mean profile')
+    plt.xlabel('Phase bin')
+    plt.ylabel('Flux [mJy]')
+    plt.legend()
+
+    plt.savefig(FILE_PREFIX + '_plot_mean_profile.png')
+    plt.close()
+
 def plot_sd(min_sd, max_sd):
     """ Plots minimum and maximum standard deviation series"""
 
     top = plt.subplot2grid((2, 1), (0, 0))
-    top.plot(min_sd, label="Min std")
+    top.plot(min_sd, label='Min std')
     plt.xlabel('Pulse number')
     plt.ylabel('Flux [mJy]')
     plt.legend()
     
     bottom = plt.subplot2grid((2, 1), (1, 0))
-    bottom.plot(max_sd, label="Max std")
+    bottom.plot(max_sd, label='Max std')
     plt.xlabel('Pulse number')
     plt.ylabel('Flux [mJy]')
     plt.legend()
@@ -73,3 +83,7 @@ off_pulse_windows = sd[:, 0, 1].astype(np.int)
 baselines = fn.get_baselines(d, position=off_pulse_windows, width=CONFIG['WINDOW_SIZE'])
 
 plot_baselines(baselines)
+
+d = fn.subtract_baselines(d, position=off_pulse_windows, width=CONFIG['WINDOW_SIZE'])
+
+plot_mean_profile(fn.get_mean_profile(d))
