@@ -22,6 +22,29 @@ def get_mean_profile(d):
     """
     return d.mean(axis=0)
 
+def get_on_pulse_window(mean_profile):
+    """ Finds on pulse window """
+    FLUX_THRESH = 0.03
+    MARGIN = 700
+
+    max_flux = mean_profile.max()
+    max_bin = mean_profile.argmax()
+
+    left_on = 0
+    right_on = mean_profile.shape[0]
+
+    for i in range(max_bin, 0, -1):
+        if mean_profile[i] < FLUX_THRESH * max_flux:
+            left_on = i
+            break
+
+    for i in range(max_bin, mean_profile.shape[0]):
+        if mean_profile[i] < FLUX_THRESH * max_flux:
+            right_on = i
+            break
+        
+    return np.max(left_on - MARGIN, 0), min(right_on + MARGIN, mean_profile.shape[0])
+
 def get_sd_from_pulse(d, width, step):
     """ Get minimum and maximum value of standard deviation from single pulse
 
