@@ -8,7 +8,7 @@ def get_sd_from_pulse(d, width, step):
     width - width of sd calculation
     """
     sd = np.std(rolling_window(d, width, step), axis=1)
-    return np.array([[np.min(sd), sd.argmin()], [np.max(sd), sd.argmax()]])
+    return np.array([[np.min(sd), sd.argmin() * step], [np.max(sd), sd.argmax() * step]])
 
 def get_sd_from_pulses(d, width, step):
     """ Get minimum and maximum values of standard deviation for set of single pulses
