@@ -9,7 +9,11 @@ def get_baselines(d, position, width):
     """ Get baselines from all pulses.
     Probably can be much better than this.
     """
-    return np.array(list(map(get_baseline_single, d, position, np.array(len(position) * [width]))))
+    if isinstance(position, int):
+        position = np.array(d.shape[0] * [position])
+    if isinstance(width, int):
+        width = np.array(d.shape[0] * [width])
+    return np.array(list(map(get_baseline_single, d, position, width)))
 
 def get_mean_profile(d):
     """ Get mean profile from all pulses
@@ -48,7 +52,11 @@ def rolling_window(a, width, step):
 
 def subtract_baselines(d, position, width):
     """ Subtract baseline from 2-d array of single pulses """
-    return np.array(list(map(subtract_baseline_single, d, position, np.array(len(position) * [width]))))
+    if isinstance(position, int):
+        position = np.array(d.shape[0] * [position])
+    if isinstance(width, int):
+        width = np.array(d.shape[0] * [width])
+    return np.array(list(map(subtract_baseline_single, d, position, width)))
 
 def subtract_baseline_single(d, position, width):
     """ Subtract baseline from single pulse """
