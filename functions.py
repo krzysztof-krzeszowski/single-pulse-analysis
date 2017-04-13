@@ -6,8 +6,10 @@ def get_baseline_single(d, position, width):
     return np.mean(d[position:position + width])
 
 def get_baselines(d, position, width):
-    """ Get baselines from all pulses """
-    return np.apply_along_axis(get_baseline_single, 1, d, position=position, width=width)
+    """ Get baselines from all pulses.
+    Probably can be much better than this.
+    """
+    return np.array(list(map(get_baseline_single, d, position, np.array(len(position) * [width]))))
 
 def get_mean_profile(d):
     """ Get mean profile from all pulses
