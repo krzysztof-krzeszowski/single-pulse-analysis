@@ -22,14 +22,12 @@ def plot_baselines(b):
     plt.savefig(FILE_PREFIX + '_plot_baseline.png')
     plt.close()
 
-def plot_mean_profile(d):
+def plot_mean_profile(d, left, right):
     """ Plots mean profile """
-    left, right = fn.get_on_pulse_window(d)
     plt.plot(d, label='Mean profile')
-    plt.axvline(left)
-    plt.axvline(right)
     plt.xlabel('Phase bin')
     plt.ylabel('Flux [mJy]')
+    plt.xlim(left, right)
     plt.legend()
 
     plt.savefig(FILE_PREFIX + '_plot_mean_profile.png')
@@ -83,11 +81,14 @@ plot_sd(min_sd, max_sd)
 
 off_pulse_windows = sd[:, 0, 1].astype(np.int)
 
-#baselines = fn.get_baselines(d, position=off_pulse_windows, width=CONFIG['WINDOW_SIZE'])
-baselines = fn.get_baselines(d, position=100, width=CONFIG['WINDOW_SIZE'])
+baselines = fn.get_baselines(d, position=off_pulse_windows, width=CONFIG['WINDOW_SIZE'])
+#baselines = fn.get_baselines(d, position=100, width=CONFIG['WINDOW_SIZE'])
 
 plot_baselines(baselines)
 
 d = fn.subtract_baselines(d, position=off_pulse_windows, width=CONFIG['WINDOW_SIZE'])
 
-plot_mean_profile(fn.get_mean_profile(d))
+mean_profile = fn.get_mean_profile(d)
+LEFT, RIGHT = fn.get_on_pulse_window(mean_profile)
+
+plot_mean_profile(mean_profile, LEFT, RIGHT)
