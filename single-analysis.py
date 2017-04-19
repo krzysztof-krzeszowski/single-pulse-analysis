@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 
 import functions as fn
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
 from pathlib import Path
+
+mpl.rcParams['figure.figsize'] = [9, 5]
+mpl.rcParams['savefig.dpi'] = 150
 
 CONFIG = {
     'MEAN_PROFILE_MAGNIFICATION': 10,
