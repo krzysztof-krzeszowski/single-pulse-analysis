@@ -4,10 +4,11 @@ import functions as fn
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
+import argparse
 
 from pathlib import Path
 
+# matplotlib global options
 mpl.rcParams['figure.figsize'] = [9, 5]
 mpl.rcParams['savefig.dpi'] = 150
 
@@ -22,20 +23,20 @@ def plot_baselines(b):
     plt.plot(b, label='Baseline')
     plt.xlabel('Pulse number')
     plt.ylabel('Flux [mjy]')
-    plt.title(FILE_PREFIX)
+    plt.title(args.prefix)
     plt.legend()
 
-    plt.savefig(FILE_PREFIX + '_plot_baseline.png')
+    plt.savefig(args.prefix + '_plot_baseline.png')
     plt.close()
 
 def plot_fluxes_histogram(fluxes):
     plt.hist(fluxes, bins=int(0.05 * N_PULSES), label='Fluxes')
     plt.xlabel('Flux [mJy]')
     plt.ylabel('Counts')
-    plt.title(FILE_PREFIX)
+    plt.title(args.prefix)
     plt.legend()
 
-    plt.savefig(FILE_PREFIX + '_plot_fluxes_histogram.png')
+    plt.savefig(args.prefix + '_plot_fluxes_histogram.png')
     plt.close()
 
 def plot_maxima(mean_profile, max_bin, max_flux):
@@ -47,22 +48,26 @@ def plot_maxima(mean_profile, max_bin, max_flux):
     plt.xlim(0, len(mean_profile))
     plt.xlabel('Phase bin')
     plt.ylabel('Flux [mJy]')
-    plt.title(FILE_PREFIX)
+    plt.title(args.prefix)
     plt.legend()
 
-    plt.savefig(FILE_PREFIX + '_plot_maxima.png')
+    plt.savefig(args.prefix + '_plot_maxima.png')
     plt.close()
 
-def plot_mean_profile(d, left, right):
+def plot_mean_profile(d, left=None, right=None):
     """ Plots mean profile """
     plt.plot(d, label='Mean profile')
     plt.xlabel('Phase bin')
     plt.ylabel('Flux [mJy]')
-    plt.xlim(left, right)
-    plt.title(FILE_PREFIX)
+    if left and right:
+        plt.xlim(left, right)
+    plt.title(args.prefix)
     plt.legend()
 
-    plt.savefig(FILE_PREFIX + '_plot_mean_profile.png')
+    if args.m:
+        plt.show()
+    else:
+        plt.savefig(args.prefix + '_plot_mean_profile.png')
     plt.close()
 
 def plot_sd(min_sd, max_sd):
@@ -72,29 +77,28 @@ def plot_sd(min_sd, max_sd):
     top.plot(min_sd, label='Min std')
     plt.xlabel('Pulse number')
     plt.ylabel('Flux [mJy]')
-    plt.title(FILE_PREFIX)
+    plt.title(args.prefix)
     plt.legend()
     
     bottom = plt.subplot2grid((2, 1), (1, 0))
     bottom.plot(max_sd, label='Max std')
     plt.xlabel('Pulse number')
     plt.ylabel('Flux [mJy]')
-    plt.title(FILE_PREFIX)
+    plt.title(args.prefix)
     plt.legend()
     
-    plt.savefig(FILE_PREFIX + '_plot_sd.png')
+    plt.savefig(args.prefix + '_plot_sd.png')
     plt.close()
 
+parser = argparse.ArgumentParser()
+parser.add_argument('file_in', help='HDF5 file containing single pulse data', type=str)
+parser.add_argument('-p', '--prefix', help='prefix of output files', type=str, default='out')
+parser.add_argument('-w', '--window', help='pulse window', type=int, nargs=2, default=None)
+parser.add_argument('-m', help='plot mean profile only', action='store_true')
 
-if len(sys.argv) != 3:
-    print('\nUsage:')
-    print('single-analysis.py hdf5_data_file output_file_base\n')
-    print('output_file_base - all output files will have names that start with this string')
-    print('e.g. 0329+54.21cm -> 0329+54.21cm_baseline.dat etc.')
-    exit()
+args = parser.parse_args()
 
-f = Path(sys.argv[1])
-FILE_PREFIX = sys.argv[2]
+f = Path(args.file_in)
 
 if not f.is_file():
     exit('File does not exist')
@@ -105,6 +109,12 @@ N_PULSES = pulses.shape[0]
 #N_PULSES = 500
 
 pulses = pulses[:N_PULSES]
+
+if args.m:
+    mean_profile = fn.get_mean_profile(pulses)
+    plot_mean_profile(mean_profile)
+    exit()
+    
 
 sd = fn.get_sd_from_pulses(pulses, width=CONFIG['WINDOW_SIZE'], step=CONFIG['WINDOW_STEP'])
 
@@ -122,7 +132,8 @@ plot_baselines(baselines)
 pulses = fn.subtract_baselines(pulses, position=off_pulse_windows, width=CONFIG['WINDOW_SIZE'])
 
 mean_profile = fn.get_mean_profile(pulses)
-LEFT, RIGHT = fn.get_on_pulse_window(mean_profile)
+
+LEFT, RIGHT = args.window if args.window else fn.get_on_pulse_window(mean_profile)
 
 plot_mean_profile(mean_profile, LEFT, RIGHT)
 
