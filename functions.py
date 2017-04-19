@@ -33,7 +33,7 @@ def get_mean_profile(d):
 def get_on_pulse_window(mean_profile):
     """ Finds on pulse window """
     FLUX_THRESH = 0.03
-    MARGIN = 700
+    MARGIN = 100
 
     max_flux = mean_profile.max()
     max_bin = mean_profile.argmax()
