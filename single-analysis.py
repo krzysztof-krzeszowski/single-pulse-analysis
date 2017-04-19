@@ -22,9 +22,20 @@ def plot_baselines(b):
     plt.plot(b, label='Baseline')
     plt.xlabel('Pulse number')
     plt.ylabel('Flux [mjy]')
+    plt.title(FILE_PREFIX)
     plt.legend()
 
     plt.savefig(FILE_PREFIX + '_plot_baseline.png')
+    plt.close()
+
+def plot_fluxes_histogram(fluxes):
+    plt.hist(fluxes, bins=int(0.05 * N_PULSES), label='Fluxes')
+    plt.xlabel('Flux [mJy]')
+    plt.ylabel('Counts')
+    plt.title(FILE_PREFIX)
+    plt.legend()
+
+    plt.savefig(FILE_PREFIX + '_plot_fluxes_histogram.png')
     plt.close()
 
 def plot_maxima(mean_profile, max_bin, max_flux):
@@ -36,6 +47,7 @@ def plot_maxima(mean_profile, max_bin, max_flux):
     plt.xlim(0, len(mean_profile))
     plt.xlabel('Phase bin')
     plt.ylabel('Flux [mJy]')
+    plt.title(FILE_PREFIX)
     plt.legend()
 
     plt.savefig(FILE_PREFIX + '_plot_maxima.png')
@@ -47,6 +59,7 @@ def plot_mean_profile(d, left, right):
     plt.xlabel('Phase bin')
     plt.ylabel('Flux [mJy]')
     plt.xlim(left, right)
+    plt.title(FILE_PREFIX)
     plt.legend()
 
     plt.savefig(FILE_PREFIX + '_plot_mean_profile.png')
@@ -59,12 +72,14 @@ def plot_sd(min_sd, max_sd):
     top.plot(min_sd, label='Min std')
     plt.xlabel('Pulse number')
     plt.ylabel('Flux [mJy]')
+    plt.title(FILE_PREFIX)
     plt.legend()
     
     bottom = plt.subplot2grid((2, 1), (1, 0))
     bottom.plot(max_sd, label='Max std')
     plt.xlabel('Pulse number')
     plt.ylabel('Flux [mJy]')
+    plt.title(FILE_PREFIX)
     plt.legend()
     
     plt.savefig(FILE_PREFIX + '_plot_sd.png')
@@ -87,7 +102,7 @@ if not f.is_file():
 pulses = fn.read_data(f)
 
 N_PULSES = pulses.shape[0]
-N_PULSES = 500
+#N_PULSES = 500
 
 pulses = pulses[:N_PULSES]
 
@@ -118,6 +133,10 @@ mean_profile = fn.get_mean_profile(pulses)
 maxima = fn.get_maxima(pulses)
 
 max_bin, max_flux = maxima.T
+max_bin = max_bin.astype(np.int)
 del(maxima)
 
 plot_maxima(mean_profile, max_bin, max_flux)
+
+fluxes = pulses.sum(axis=1)
+plot_fluxes_histogram(fluxes)
