@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 CONFIG = {
+    'MEAN_PROFILE_MAGNIFICATION': 10,
     'WINDOW_SIZE': 1000,
     'WINDOW_STEP': 300,
 }
@@ -20,6 +21,20 @@ def plot_baselines(b):
     plt.legend()
 
     plt.savefig(FILE_PREFIX + '_plot_baseline.png')
+    plt.close()
+
+def plot_maxima(mean_profile, max_bin, max_flux):
+    plt.plot(
+        CONFIG['MEAN_PROFILE_MAGNIFICATION'] * mean_profile, 
+        label='Mean profile (x%s)' % CONFIG['MEAN_PROFILE_MAGNIFICATION']
+    )
+    plt.scatter(max_bin, max_flux, label='Max flux')
+    plt.xlim(0, len(mean_profile))
+    plt.xlabel('Phase bin')
+    plt.ylabel('Flux [mJy]')
+    plt.legend()
+
+    plt.savefig(FILE_PREFIX + '_plot_maxima.png')
     plt.close()
 
 def plot_mean_profile(d, left, right):
@@ -67,7 +82,7 @@ if not f.is_file():
 
 pulses = fn.read_data(f)
 
-N_PULSES = d.shape[0]
+N_PULSES = pulses.shape[0]
 N_PULSES = 500
 
 pulses = pulses[:N_PULSES]
@@ -81,7 +96,7 @@ plot_sd(min_sd, max_sd)
 
 off_pulse_windows = sd[:, 0, 1].astype(np.int)
 
-baselines = fn.get_baselines(d, position=off_pulse_windows, width=CONFIG['WINDOW_SIZE'])
+baselines = fn.get_baselines(pulses, position=off_pulse_windows, width=CONFIG['WINDOW_SIZE'])
 
 plot_baselines(baselines)
 
@@ -94,4 +109,11 @@ plot_mean_profile(mean_profile, LEFT, RIGHT)
 
 # Remove everything but pulse window
 pulses = pulses[:, LEFT:RIGHT]
+mean_profile = fn.get_mean_profile(pulses)
 
+maxima = fn.get_maxima(pulses)
+
+max_bin, max_flux = maxima.T
+del(maxima)
+
+plot_maxima(mean_profile, max_bin, max_flux)
