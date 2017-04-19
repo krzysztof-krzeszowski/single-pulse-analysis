@@ -15,6 +15,14 @@ def get_baselines(d, position, width):
         width = np.array(d.shape[0] * [width])
     return np.array(list(map(get_baseline_single, d, position, width)))
 
+def get_maxima(d):
+    """ Get positions and values of maximum emission in single pulse """
+    return np.array(list(map(get_maximum, d)))
+
+def get_maximum(d):
+    """ Get position and the maximum flux of pulse """
+    return np.array([d.argmax(), d.max()])
+
 def get_mean_profile(d):
     """ Get mean profile from all pulses
 

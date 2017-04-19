@@ -20,6 +20,24 @@ class Test(unittest.TestCase):
         ans = np.array([6, 5, 3])
         np.testing.assert_array_almost_equal(fn.get_baselines(d, position=positions, width=3), ans, decimal=4)
 
+    def test_get_maxima(self):
+        d = np.array([
+            [9, 4, 7, 7, 4, 4, 4, 6, 0, 5],
+            [6, 4, 4, 7, 8, 3, 6, 6, 8, 9],
+            [9, 6, 2, 1, 0, 3, 9, 9, 2, 8]
+        ])
+        ans = np.array([
+            [0, 9],
+            [9, 9],
+            [0, 9]
+        ])
+        np.testing.assert_equal(fn.get_maxima(d), ans)
+        
+    def test_get_maximum(self):
+        d = np.array([9, 4, 7, 7, 4, 4, 4, 6, 0, 5])
+        np.testing.assert_equal(fn.get_maximum(d), np.array([0, 9]))
+
+
     def test_subtract_baseline_multiple(self):
         d = np.array([
             [9, 4, 7, 7, 4, 4, 4, 6, 0, 5],
