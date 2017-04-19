@@ -65,14 +65,14 @@ FILE_PREFIX = sys.argv[2]
 if not f.is_file():
     exit('File does not exist')
 
-d = fn.read_data(f)
+pulses = fn.read_data(f)
 
 N_PULSES = d.shape[0]
 N_PULSES = 500
 
-d = d[:N_PULSES]
+pulses = pulses[:N_PULSES]
 
-sd = fn.get_sd_from_pulses(d, width=CONFIG['WINDOW_SIZE'], step=CONFIG['WINDOW_STEP'])
+sd = fn.get_sd_from_pulses(pulses, width=CONFIG['WINDOW_SIZE'], step=CONFIG['WINDOW_STEP'])
 
 min_sd = sd[:, 0, 0]
 max_sd = sd[:, 1, 0]
@@ -82,13 +82,16 @@ plot_sd(min_sd, max_sd)
 off_pulse_windows = sd[:, 0, 1].astype(np.int)
 
 baselines = fn.get_baselines(d, position=off_pulse_windows, width=CONFIG['WINDOW_SIZE'])
-#baselines = fn.get_baselines(d, position=100, width=CONFIG['WINDOW_SIZE'])
 
 plot_baselines(baselines)
 
-d = fn.subtract_baselines(d, position=off_pulse_windows, width=CONFIG['WINDOW_SIZE'])
+pulses = fn.subtract_baselines(pulses, position=off_pulse_windows, width=CONFIG['WINDOW_SIZE'])
 
-mean_profile = fn.get_mean_profile(d)
+mean_profile = fn.get_mean_profile(pulses)
 LEFT, RIGHT = fn.get_on_pulse_window(mean_profile)
 
 plot_mean_profile(mean_profile, LEFT, RIGHT)
+
+# Remove everything but pulse window
+pulses = pulses[:, LEFT:RIGHT]
+
