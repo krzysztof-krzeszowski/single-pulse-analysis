@@ -56,7 +56,7 @@ def plot_maxima(mean_profile, max_bin, max_flux):
 
 def plot_mean_profile(d, left=None, right=None):
     """ Plots mean profile """
-    plt.plot(d, label='Mean profile')
+    plt.plot(d, label='Mean profile of %s pulses' % N_PULSES)
     plt.xlabel('Phase bin')
     plt.ylabel('Flux [mJy]')
     if left and right:
@@ -90,6 +90,8 @@ def plot_sd(min_sd, max_sd):
     plt.savefig(args.prefix + '_plot_sd.png')
     plt.close()
 
+# command line options
+
 parser = argparse.ArgumentParser()
 parser.add_argument('file_in', help='HDF5 file containing single pulse data', type=str)
 parser.add_argument('-p', '--prefix', help='prefix of output files', type=str, default='out')
@@ -103,6 +105,8 @@ f = Path(args.file_in)
 if not f.is_file():
     exit('File does not exist')
 
+# read data
+
 pulses = fn.read_data(f)
 
 N_PULSES = pulses.shape[0]
@@ -111,10 +115,12 @@ N_PULSES = pulses.shape[0]
 pulses = pulses[:N_PULSES]
 
 if args.m:
+    # plot mean profile from all pulses and exit
     mean_profile = fn.get_mean_profile(pulses)
     plot_mean_profile(mean_profile)
     exit()
     
+# calculate min and max standard deviations from each pulse
 
 sd = fn.get_sd_from_pulses(pulses, width=CONFIG['WINDOW_SIZE'], step=CONFIG['WINDOW_STEP'])
 
@@ -123,17 +129,24 @@ max_sd = sd[:, 1, 0]
 
 plot_sd(min_sd, max_sd)
 
+# for each pulse select the off-pulse region as the minimum std
+
 off_pulse_windows = sd[:, 0, 1].astype(np.int)
+
+# get baselines from off-pulse regions
 
 baselines = fn.get_baselines(pulses, position=off_pulse_windows, width=CONFIG['WINDOW_SIZE'])
 
 plot_baselines(baselines)
+
+# subtract baselines
 
 pulses = fn.subtract_baselines(pulses, position=off_pulse_windows, width=CONFIG['WINDOW_SIZE'])
 
 mean_profile = fn.get_mean_profile(pulses)
 
 LEFT, RIGHT = args.window if args.window else fn.get_on_pulse_window(mean_profile)
+LEFT, RIGHT = sorted([LEFT, RIGHT])
 
 plot_mean_profile(mean_profile, LEFT, RIGHT)
 
