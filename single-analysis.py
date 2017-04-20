@@ -11,6 +11,7 @@ from pathlib import Path
 # matplotlib global options
 mpl.rcParams['figure.figsize'] = [9, 5]
 mpl.rcParams['savefig.dpi'] = 150
+mpl.rcParams['lines.linewidth'] = 0.5
 
 def plot_baselines(b):
     """ Plots baseline series """
@@ -34,16 +35,17 @@ def plot_fluxes_histogram(fluxes):
     plt.close()
 
 def plot_maxima(mean_profile, max_bin, max_flux):
+    mag_factor = round(0.7 * max(max_flux) / max(mean_profile), 2)
     plt.plot(
-        mean_profile, 
-        label='Mean profile'
+        mag_factor * mean_profile,
+        label='Mean profile (x%s)' % mag_factor
     )
-    plt.scatter(max_bin, max_flux, label='Max flux')
+    plt.scatter(max_bin, max_flux, label='Max flux', s=5)
     plt.xlim(0, len(mean_profile))
     plt.xlabel('Phase bin')
     plt.ylabel('Flux [mJy]')
     plt.title(args.prefix)
-    plt.legend()
+    plt.legend(frameon=False)
 
     plt.savefig(args.prefix + '_plot_maxima.png')
     plt.close()
