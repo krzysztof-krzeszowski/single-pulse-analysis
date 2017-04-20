@@ -94,98 +94,100 @@ def plot_single_pulse(pulse, n):
     plt.legend()
     plt.show()
 
-# command line options
 
-parser = argparse.ArgumentParser()
-parser.add_argument('file_in', help='HDF5 file containing single pulse data', type=str)
-parser.add_argument('-p', '--prefix', help='prefix of output files', type=str, default='out')
-parser.add_argument('-w', '--window', help='pulse window', type=int, nargs=2, default=None)
-parser.add_argument('-m', help='plot mean profile only', action='store_true')
-parser.add_argument('-s', '--single', help='plot one pulse', action='store', type=int, default=None)
-parser.add_argument('-r', '--range', help='first and last pulse, starting from 1', type=int, nargs=2, default=None)
-parser.add_argument('--std-window', help='standard deviation window size', type=int, default=1000)
-parser.add_argument('--std-step', help='standard deviation window step', type=int, default=300)
-
-args = parser.parse_args()
-
-# basic args checks
-if args.single and args.single < 0:
-    exit('Negative pulse index')
-if args.range and np.any(np.array(args.range) < 0):
-    exit('Negative index in pulse range')
-if args.window and np.any(np.array(args.window) < 0):
-    exit('Negative index in pulse window range')
-
-f = Path(args.file_in)
-
-if not f.is_file():
-    exit('File does not exist')
-
-# read data
-pulses = fn.read_data(f)
-N_PULSES = pulses.shape[0]
-
-if args.m:
-    # plot mean profile from all pulses and exit
-    mean_profile = fn.get_mean_profile(pulses)
-    plot_mean_profile(mean_profile)
-    exit()
-elif args.single:
-    # plot one pulse and exit
-    if args.single < N_PULSES:
-        plot_single_pulse(pulses[args.single - 1], args.single)
-    else:
-        print('Exceeded number of pulses')
-    exit()
-
-if args.range:
-    FIRST_PULSE = args.range[0] - 1
-    LAST_PULSE = args.range[1]
-else:
-    FIRST_PULSE = 0
-    LAST_PULSE = pulses.shape[0] - 1
-
-pulses = pulses[FIRST_PULSE:LAST_PULSE]
-N_PULSES = pulses.shape[0]
-PULSE_NUMBER_ARRAY = np.array(range(FIRST_PULSE + 1, LAST_PULSE + 1))
-
+if __name__ == '__main__':
+    # command line options
     
-# calculate min and max standard deviations from each pulse
-sd = fn.get_sd_from_pulses(pulses, width=args.std_window, step=args.std_step)
-
-min_sd = sd[:, 0, 0]
-max_sd = sd[:, 1, 0]
-
-plot_sd(min_sd, max_sd)
-
-# for each pulse select the off-pulse region as the minimum std
-off_pulse_windows = sd[:, 0, 1].astype(np.int)
-
-# get baselines from off-pulse regions
-baselines = fn.get_baselines(pulses, position=off_pulse_windows, width=args.std_window)
-
-plot_baselines(baselines)
-
-# subtract baselines
-pulses = fn.subtract_baselines(pulses, position=off_pulse_windows, width=args.std_window)
-
-mean_profile = fn.get_mean_profile(pulses)
-
-LEFT, RIGHT = sorted(args.window if args.window else fn.get_on_pulse_window(mean_profile))
-
-plot_mean_profile(mean_profile, LEFT, RIGHT)
-
-# Remove everything but pulse window
-pulses = pulses[:, LEFT:RIGHT]
-mean_profile = fn.get_mean_profile(pulses)
-
-maxima = fn.get_maxima(pulses)
-
-max_bin, max_flux = maxima.T
-max_bin = max_bin.astype(np.int)
-del(maxima)
-
-plot_maxima(mean_profile, max_bin, max_flux)
-
-fluxes = pulses.sum(axis=1)
-plot_fluxes_histogram(fluxes)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('file_in', help='HDF5 file containing single pulse data', type=str)
+    parser.add_argument('-p', '--prefix', help='prefix of output files', type=str, default='out')
+    parser.add_argument('-w', '--window', help='pulse window', type=int, nargs=2, default=None)
+    parser.add_argument('-m', help='plot mean profile only', action='store_true')
+    parser.add_argument('-s', '--single', help='plot one pulse', action='store', type=int, default=None)
+    parser.add_argument('-r', '--range', help='first and last pulse, starting from 1', type=int, nargs=2, default=None)
+    parser.add_argument('--std-window', help='standard deviation window size', type=int, default=1000)
+    parser.add_argument('--std-step', help='standard deviation window step', type=int, default=300)
+    
+    args = parser.parse_args()
+    
+    # basic args checks
+    if args.single and args.single < 0:
+        exit('Negative pulse index')
+    if args.range and np.any(np.array(args.range) < 0):
+        exit('Negative index in pulse range')
+    if args.window and np.any(np.array(args.window) < 0):
+        exit('Negative index in pulse window range')
+    
+    f = Path(args.file_in)
+    
+    if not f.is_file():
+        exit('File does not exist')
+    
+    # read data
+    pulses = fn.read_data(f)
+    N_PULSES = pulses.shape[0]
+    
+    if args.m:
+        # plot mean profile from all pulses and exit
+        mean_profile = fn.get_mean_profile(pulses)
+        plot_mean_profile(mean_profile)
+        exit()
+    elif args.single:
+        # plot one pulse and exit
+        if args.single < N_PULSES:
+            plot_single_pulse(pulses[args.single - 1], args.single)
+        else:
+            print('Exceeded number of pulses')
+        exit()
+    
+    if args.range:
+        FIRST_PULSE = args.range[0] - 1
+        LAST_PULSE = args.range[1]
+    else:
+        FIRST_PULSE = 0
+        LAST_PULSE = pulses.shape[0] - 1
+    
+    pulses = pulses[FIRST_PULSE:LAST_PULSE]
+    N_PULSES = pulses.shape[0]
+    PULSE_NUMBER_ARRAY = np.array(range(FIRST_PULSE + 1, LAST_PULSE + 1))
+    
+        
+    # calculate min and max standard deviations from each pulse
+    sd = fn.get_sd_from_pulses(pulses, width=args.std_window, step=args.std_step)
+    
+    min_sd = sd[:, 0, 0]
+    max_sd = sd[:, 1, 0]
+    
+    plot_sd(min_sd, max_sd)
+    
+    # for each pulse select the off-pulse region as the minimum std
+    off_pulse_windows = sd[:, 0, 1].astype(np.int)
+    
+    # get baselines from off-pulse regions
+    baselines = fn.get_baselines(pulses, position=off_pulse_windows, width=args.std_window)
+    
+    plot_baselines(baselines)
+    
+    # subtract baselines
+    pulses = fn.subtract_baselines(pulses, position=off_pulse_windows, width=args.std_window)
+    
+    mean_profile = fn.get_mean_profile(pulses)
+    
+    LEFT, RIGHT = sorted(args.window if args.window else fn.get_on_pulse_window(mean_profile))
+    
+    plot_mean_profile(mean_profile, LEFT, RIGHT)
+    
+    # Remove everything but pulse window
+    pulses = pulses[:, LEFT:RIGHT]
+    mean_profile = fn.get_mean_profile(pulses)
+    
+    maxima = fn.get_maxima(pulses)
+    
+    max_bin, max_flux = maxima.T
+    max_bin = max_bin.astype(np.int)
+    del(maxima)
+    
+    plot_maxima(mean_profile, max_bin, max_flux)
+    
+    fluxes = pulses.sum(axis=1)
+    plot_fluxes_histogram(fluxes)
