@@ -30,7 +30,7 @@ def plot_baselines(b):
     plt.close()
 
 def plot_fluxes_histogram(fluxes):
-    plt.hist(fluxes, bins=np.ceil(0.05 * N_PULSES), label='Fluxes')
+    plt.hist(fluxes, bins=int(np.ceil(0.05 * N_PULSES)), label='Fluxes')
     plt.xlabel('Flux [mJy]')
     plt.ylabel('Counts')
     plt.title(args.prefix)
@@ -110,13 +110,20 @@ parser.add_argument('-r', '--range', help='first and last pulse, starting from 1
 
 args = parser.parse_args()
 
+# basic args checks
+if args.single and args.single < 0:
+    exit('Negative pulse index')
+if args.range and np.any(np.array(args.range) < 0):
+    exit('Negative index in pulse range')
+if args.window and np.any(np.array(args.window) < 0):
+    exit('Negative index in pulse window range')
+
 f = Path(args.file_in)
 
 if not f.is_file():
     exit('File does not exist')
 
 # read data
-
 pulses = fn.read_data(f)
 N_PULSES = pulses.shape[0]
 
@@ -145,7 +152,6 @@ PULSE_NUMBER_ARRAY = np.array(range(FIRST_PULSE + 1, LAST_PULSE + 1))
 
     
 # calculate min and max standard deviations from each pulse
-
 sd = fn.get_sd_from_pulses(pulses, width=CONFIG['WINDOW_SIZE'], step=CONFIG['WINDOW_STEP'])
 
 min_sd = sd[:, 0, 0]
@@ -154,17 +160,14 @@ max_sd = sd[:, 1, 0]
 plot_sd(min_sd, max_sd)
 
 # for each pulse select the off-pulse region as the minimum std
-
 off_pulse_windows = sd[:, 0, 1].astype(np.int)
 
 # get baselines from off-pulse regions
-
 baselines = fn.get_baselines(pulses, position=off_pulse_windows, width=CONFIG['WINDOW_SIZE'])
 
 plot_baselines(baselines)
 
 # subtract baselines
-
 pulses = fn.subtract_baselines(pulses, position=off_pulse_windows, width=CONFIG['WINDOW_SIZE'])
 
 mean_profile = fn.get_mean_profile(pulses)
