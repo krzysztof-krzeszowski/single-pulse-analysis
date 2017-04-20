@@ -12,12 +12,6 @@ from pathlib import Path
 mpl.rcParams['figure.figsize'] = [9, 5]
 mpl.rcParams['savefig.dpi'] = 150
 
-CONFIG = {
-    'MEAN_PROFILE_MAGNIFICATION': 10,
-    'WINDOW_SIZE': 1000,
-    'WINDOW_STEP': 300,
-}
-
 def plot_baselines(b):
     """ Plots baseline series """
     plt.plot(PULSE_NUMBER_ARRAY, b, label='Baseline')
@@ -41,8 +35,8 @@ def plot_fluxes_histogram(fluxes):
 
 def plot_maxima(mean_profile, max_bin, max_flux):
     plt.plot(
-        CONFIG['MEAN_PROFILE_MAGNIFICATION'] * mean_profile, 
-        label='Mean profile (x%s)' % CONFIG['MEAN_PROFILE_MAGNIFICATION']
+        mean_profile, 
+        label='Mean profile'
     )
     plt.scatter(max_bin, max_flux, label='Max flux')
     plt.xlim(0, len(mean_profile))
@@ -107,6 +101,8 @@ parser.add_argument('-w', '--window', help='pulse window', type=int, nargs=2, de
 parser.add_argument('-m', help='plot mean profile only', action='store_true')
 parser.add_argument('-s', '--single', help='plot one pulse', action='store', type=int, default=None)
 parser.add_argument('-r', '--range', help='first and last pulse, starting from 1', type=int, nargs=2, default=None)
+parser.add_argument('--std-window', help='standard deviation window size', type=int, default=1000)
+parser.add_argument('--std-step', help='standard deviation window step', type=int, default=300)
 
 args = parser.parse_args()
 
@@ -133,6 +129,7 @@ if args.m:
     plot_mean_profile(mean_profile)
     exit()
 elif args.single:
+    # plot one pulse and exit
     if args.single < N_PULSES:
         plot_single_pulse(pulses[args.single - 1], args.single)
     else:
@@ -152,7 +149,7 @@ PULSE_NUMBER_ARRAY = np.array(range(FIRST_PULSE + 1, LAST_PULSE + 1))
 
     
 # calculate min and max standard deviations from each pulse
-sd = fn.get_sd_from_pulses(pulses, width=CONFIG['WINDOW_SIZE'], step=CONFIG['WINDOW_STEP'])
+sd = fn.get_sd_from_pulses(pulses, width=args.std_window, step=args.std_step)
 
 min_sd = sd[:, 0, 0]
 max_sd = sd[:, 1, 0]
@@ -163,17 +160,16 @@ plot_sd(min_sd, max_sd)
 off_pulse_windows = sd[:, 0, 1].astype(np.int)
 
 # get baselines from off-pulse regions
-baselines = fn.get_baselines(pulses, position=off_pulse_windows, width=CONFIG['WINDOW_SIZE'])
+baselines = fn.get_baselines(pulses, position=off_pulse_windows, width=args.std_window)
 
 plot_baselines(baselines)
 
 # subtract baselines
-pulses = fn.subtract_baselines(pulses, position=off_pulse_windows, width=CONFIG['WINDOW_SIZE'])
+pulses = fn.subtract_baselines(pulses, position=off_pulse_windows, width=args.std_window)
 
 mean_profile = fn.get_mean_profile(pulses)
 
-LEFT, RIGHT = args.window if args.window else fn.get_on_pulse_window(mean_profile)
-LEFT, RIGHT = sorted([LEFT, RIGHT])
+LEFT, RIGHT = sorted(args.window if args.window else fn.get_on_pulse_window(mean_profile))
 
 plot_mean_profile(mean_profile, LEFT, RIGHT)
 
