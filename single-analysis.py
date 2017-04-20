@@ -20,7 +20,7 @@ CONFIG = {
 
 def plot_baselines(b):
     """ Plots baseline series """
-    plt.plot(b, label='Baseline')
+    plt.plot(PULSE_NUMBER_ARRAY, b, label='Baseline')
     plt.xlabel('Pulse number')
     plt.ylabel('Flux [mjy]')
     plt.title(args.prefix)
@@ -30,7 +30,7 @@ def plot_baselines(b):
     plt.close()
 
 def plot_fluxes_histogram(fluxes):
-    plt.hist(fluxes, bins=int(0.05 * N_PULSES), label='Fluxes')
+    plt.hist(fluxes, bins=np.ceil(0.05 * N_PULSES), label='Fluxes')
     plt.xlabel('Flux [mJy]')
     plt.ylabel('Counts')
     plt.title(args.prefix)
@@ -74,14 +74,14 @@ def plot_sd(min_sd, max_sd):
     """ Plots minimum and maximum standard deviation series"""
 
     top = plt.subplot2grid((2, 1), (0, 0))
-    top.plot(min_sd, label='Min std')
+    top.plot(PULSE_NUMBER_ARRAY, min_sd, label='Min std')
     plt.xlabel('Pulse number')
     plt.ylabel('Flux [mJy]')
     plt.title(args.prefix)
     plt.legend()
     
     bottom = plt.subplot2grid((2, 1), (1, 0))
-    bottom.plot(max_sd, label='Max std')
+    bottom.plot(PULSE_NUMBER_ARRAY, max_sd, label='Max std')
     plt.xlabel('Pulse number')
     plt.ylabel('Flux [mJy]')
     plt.title(args.prefix)
@@ -106,6 +106,7 @@ parser.add_argument('-p', '--prefix', help='prefix of output files', type=str, d
 parser.add_argument('-w', '--window', help='pulse window', type=int, nargs=2, default=None)
 parser.add_argument('-m', help='plot mean profile only', action='store_true')
 parser.add_argument('-s', '--single', help='plot one pulse', action='store', type=int, default=None)
+parser.add_argument('-r', '--range', help='first and last pulse, starting from 1', type=int, nargs=2, default=None)
 
 args = parser.parse_args()
 
@@ -117,11 +118,7 @@ if not f.is_file():
 # read data
 
 pulses = fn.read_data(f)
-
 N_PULSES = pulses.shape[0]
-#N_PULSES = 500
-
-pulses = pulses[:N_PULSES]
 
 if args.m:
     # plot mean profile from all pulses and exit
@@ -134,6 +131,18 @@ elif args.single:
     else:
         print('Exceeded number of pulses')
     exit()
+
+if args.range:
+    FIRST_PULSE = args.range[0] - 1
+    LAST_PULSE = args.range[1]
+else:
+    FIRST_PULSE = 0
+    LAST_PULSE = pulses.shape[0] - 1
+
+pulses = pulses[FIRST_PULSE:LAST_PULSE]
+N_PULSES = pulses.shape[0]
+PULSE_NUMBER_ARRAY = np.array(range(FIRST_PULSE + 1, LAST_PULSE + 1))
+
     
 # calculate min and max standard deviations from each pulse
 
