@@ -90,6 +90,14 @@ def plot_sd(min_sd, max_sd):
     plt.savefig(args.prefix + '_plot_sd.png')
     plt.close()
 
+def plot_single_pulse(pulse, n):
+    plt.plot(pulse, label='Pulse number %s' % n)
+    plt.title(args.prefix)
+    plt.xlabel('Phase bin')
+    plt.ylabel('Flux [mJy]')
+    plt.legend()
+    plt.show()
+
 # command line options
 
 parser = argparse.ArgumentParser()
@@ -97,6 +105,7 @@ parser.add_argument('file_in', help='HDF5 file containing single pulse data', ty
 parser.add_argument('-p', '--prefix', help='prefix of output files', type=str, default='out')
 parser.add_argument('-w', '--window', help='pulse window', type=int, nargs=2, default=None)
 parser.add_argument('-m', help='plot mean profile only', action='store_true')
+parser.add_argument('-s', '--single', help='plot one pulse', action='store', type=int, default=None)
 
 args = parser.parse_args()
 
@@ -118,6 +127,12 @@ if args.m:
     # plot mean profile from all pulses and exit
     mean_profile = fn.get_mean_profile(pulses)
     plot_mean_profile(mean_profile)
+    exit()
+elif args.single:
+    if args.single < N_PULSES:
+        plot_single_pulse(pulses[args.single - 1], args.single)
+    else:
+        print('Exceeded number of pulses')
     exit()
     
 # calculate min and max standard deviations from each pulse
