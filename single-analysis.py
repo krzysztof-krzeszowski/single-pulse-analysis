@@ -35,15 +35,11 @@ def plot_fluxes_histogram(fluxes):
     plt.close()
 
 def plot_maxima(mean_profile, max_bin, max_flux):
-    mag_factor = round(0.7 * max(max_flux) / max(mean_profile), 2)
-    plt.plot(
-        mag_factor * mean_profile,
-        label='Mean profile (x%s)' % mag_factor
-    )
-    plt.scatter(max_bin, max_flux, label='Max flux', s=5)
+    plt.plot(mean_profile / max(mean_profile), label='Mean profile')
+    plt.scatter(max_bin, max_flux / max(max_flux), label='Max flux', s=5)
     plt.xlim(0, len(mean_profile))
     plt.xlabel('Phase bin')
-    plt.ylabel('Flux [mJy]')
+    plt.ylabel('Normalized flux')
     plt.title(args.prefix)
     plt.legend(frameon=False)
 
